@@ -33,7 +33,8 @@ int main(int argc, char *argv[]) {
     int parsed_char_count = 0; 
 
     read_lengths_prices_file(lengths_prices_file, &lengths_and_prices, &number_of_options); 
-    display_lengths_and_prices(lengths_and_prices, number_of_options);
+    // DEBUG
+    // display_lengths_and_prices(lengths_and_prices, number_of_options);
 
     while (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         buffer[strcspn(buffer, "\n")] = '\0';
