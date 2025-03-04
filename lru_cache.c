@@ -24,14 +24,17 @@ int find_index_of_lru_entry();
 // Initialize cache pointer
 LRUCache* LRU_cache = NULL;  
 
+// Function pointers to store original providers //
+int_func_ptr original_provider = NULL;
+
 // ==== INITIALIZE_CACHE ==== //
 // Initializes an empty cache // 
 // ========================== // 
 
-void initialize_cache(int_func_ptr original_provider_function) {
+void initialize_cache(int_func_ptr* assigned_provider) {
 
-    rods_provider = cache_lookup; 
-    original_provider = original_provider_function;
+    original_provider = *assigned_provider;
+    *assigned_provider = cache_lookup; 
 
 
     if (LRU_cache != NULL) {

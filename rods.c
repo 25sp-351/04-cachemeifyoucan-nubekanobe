@@ -8,8 +8,7 @@ void solve_rods(int** lengths_and_prices, int number_of_options, int rod_length)
 int solve_rods_recursive(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
 
 // Function pointers // 
-int_func_ptr rods_provider = NULL; 
-int_func_ptr original_provider = NULL;  
+int_func_ptr assigned_provider = NULL;  
 
 // ===== MAIN ======= //
 int main(int argc, char *argv[]) {
@@ -48,11 +47,10 @@ int main(int argc, char *argv[]) {
             printf("Invalid input. Enter a positive value.\n");
             continue; 
         }
- 
-        initialize_cache(original_provider);
-        original_provider = solve_rods_recursive; 
-        rods_provider = cache_lookup;  
 
+        assigned_provider = solve_rods_recursive; 
+        initialize_cache(&assigned_provider);
+        
         solve_rods(lengths_and_prices, number_of_options, rod_length); 
         // DEBUG
         // print_cache(); 
@@ -79,7 +77,7 @@ void solve_rods(int** lengths_and_prices, int number_of_options, int rod_length)
         optimal_cut_for_length[current_length] = -1;  
     }
 
-    (*rods_provider)(lengths_and_prices, number_of_options, rod_length, optimal_cut_for_length);
+    (*assigned_provider)(lengths_and_prices, number_of_options, rod_length, optimal_cut_for_length);
 
     Cut_list optimal_cut_list = generate_optimal_cut_list(optimal_cut_for_length, rod_length, lengths_and_prices, number_of_options); 
     print_cut_list(optimal_cut_list); 
@@ -109,7 +107,7 @@ int solve_rods_recursive(int** lengths_and_prices, int number_of_options, int ro
         int cut_price = lengths_and_prices[i][CUT_PRICE_INDEX];
 
         if (cut_length <= rod_length) {
-            int current_profit = cut_price + (*rods_provider)(lengths_and_prices, number_of_options, rod_length - cut_length, optimal_cut_for_length);
+            int current_profit = cut_price + (*assigned_provider)(lengths_and_prices, number_of_options, rod_length - cut_length, optimal_cut_for_length);
             if (current_profit > max_profit) {
                 max_profit = current_profit;
                 optimal_cut_for_length[rod_length] = cut_length;

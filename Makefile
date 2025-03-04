@@ -7,7 +7,6 @@ CC = clang
 CFLAGS = -Wall -g
 
 # Executable name
-# TARGET = rods
 TARGET_L = rodslru
 TARGET_F = rodsfifo
 
@@ -28,10 +27,6 @@ $(TARGET_L): $(LRU_OBJS)
 # Compile rodsf (FIFO)
 $(TARGET_F): $(FIFO_OBJS)
 	$(CC) $(CFLAGS) $(FIFO_OBJS) -o $(TARGET_F)
-
-# Compile rods (no cache)
-$(TARGET): $(COMMON_OBJS)
-	$(CC) $(CFLAGS) $(COMMON_OBJS) -o $(TARGET)
 
 # Compile object files
 fifo_cache.o: fifo_cache.c cache.h

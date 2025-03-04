@@ -19,6 +19,9 @@ typedef struct FIFOCache {
 // Initialize cache pointer
 FIFOCache* FIFO_cache = NULL;
 
+// Function pointers to store original providers //
+int_func_ptr original_provider = NULL;
+
 // FIFO Cache Function prototypes // 
 int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
 
@@ -26,10 +29,10 @@ int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length
 // Initializes an empty cache // 
 // ========================== // 
 
-void initialize_cache(int_func_ptr original_provider_function){
+void initialize_cache(int_func_ptr* assigned_provider){
 
-    rods_provider = cache_lookup; 
-    original_provider = original_provider_function;
+    original_provider = *assigned_provider;
+    *assigned_provider = cache_lookup; 
 
     if (FIFO_cache != NULL) {
         free(FIFO_cache);  
