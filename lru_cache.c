@@ -12,21 +12,27 @@ typedef struct LRUCache {
     LRUCacheEntry* entry; 
     int size; 
     int capacity; 
+    int evictions; 
     int time_counter;
 
 } LRUCache; 
 
 // LRU Cache Function Prototypes //
+int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
 int find_index_of_lru_entry();
 
 // Initialize cache pointer
-LRUCache* LRU_cache = NULL; 
+LRUCache* LRU_cache = NULL;  
 
 // ==== INITIALIZE_CACHE ==== //
 // Initializes an empty cache // 
 // ========================== // 
 
-void initialize_cache(){
+void initialize_cache(int_func_ptr original_provider_function) {
+
+    rods_provider = cache_lookup; 
+    original_provider = original_provider_function;
+
 
     if (LRU_cache != NULL) {
         free(LRU_cache);  
@@ -37,10 +43,9 @@ void initialize_cache(){
     LRU_cache->size = 0; 
     LRU_cache->capacity = CACHE_CAPACITY; 
     LRU_cache->time_counter = 0; 
+    LRU_cache->evictions = 0; 
 
     LRU_cache->entry = (LRUCacheEntry*)malloc(sizeof(LRUCacheEntry) * LRU_cache->capacity);
-
-    
     
     for(int ix = 0; ix < LRU_cache->capacity; ix++){
         LRU_cache->entry[ix].key = -1; 
@@ -84,6 +89,7 @@ int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length
         LRU_cache->entry[lru_index].key = rod_length;
         LRU_cache->entry[lru_index].value = result;
         LRU_cache->entry[lru_index].last_access_time = LRU_cache->time_counter++;
+        LRU_cache->evictions++; 
 
     } else {
         LRU_cache->entry[LRU_cache->size].key = rod_length;
@@ -130,6 +136,8 @@ void print_cache() {
                 LRU_cache->entry[ix].value, 
                 LRU_cache->entry[ix].last_access_time);
     }
+
+    printf("Evictions: %d\n", LRU_cache->evictions); 
     printf("\n");
 }
 

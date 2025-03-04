@@ -12,17 +12,24 @@ typedef struct FIFOCache {
     FIFOCacheEntry* tail; 
     int size; 
     int capacity; 
+    int evictions; 
 
 } FIFOCache; 
 
 // Initialize cache pointer
-FIFOCache* FIFO_cache = NULL; 
+FIFOCache* FIFO_cache = NULL;
+
+// FIFO Cache Function prototypes // 
+int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
 
 // ==== INITIALIZE_CACHE ==== //
 // Initializes an empty cache // 
 // ========================== // 
 
-void initialize_cache(){
+void initialize_cache(int_func_ptr original_provider_function){
+
+    rods_provider = cache_lookup; 
+    original_provider = original_provider_function;
 
     if (FIFO_cache != NULL) {
         free(FIFO_cache);  
@@ -33,6 +40,7 @@ void initialize_cache(){
     FIFO_cache->head = NULL; 
     FIFO_cache->tail = NULL; 
     FIFO_cache->size = 0; 
+    FIFO_cache->evictions = 0; 
     FIFO_cache->capacity = CACHE_CAPACITY;  
 }
 
@@ -69,6 +77,7 @@ int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length
     if (FIFO_cache->size == FIFO_cache->capacity) { 
         FIFOCacheEntry* evict_entry = FIFO_cache->head; 
         FIFO_cache->head = FIFO_cache->head->next; 
+        FIFO_cache->evictions++; 
         free(evict_entry); 
         FIFO_cache->size--; 
     }
@@ -106,6 +115,8 @@ void print_cache() {
         printf("Key = %d, Value = %d\n", current->key, current->value);
         current = current->next;
     }
+
+    printf("Evictions: %d\n", FIFO_cache->evictions); 
 
     printf("\n");
 }

@@ -8,8 +8,8 @@ void solve_rods(int** lengths_and_prices, int number_of_options, int rod_length)
 int solve_rods_recursive(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
 
 // Function pointers // 
-int_func_ptr rods_provider; 
-int_func_ptr original_provider;  
+int_func_ptr rods_provider = NULL; 
+int_func_ptr original_provider = NULL;  
 
 // ===== MAIN ======= //
 int main(int argc, char *argv[]) {
@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
             printf("Invalid input. Enter a positive value.\n");
             continue; 
         }
-
-        initialize_cache();
+ 
+        initialize_cache(original_provider);
         original_provider = solve_rods_recursive; 
         rods_provider = cache_lookup;  
 
