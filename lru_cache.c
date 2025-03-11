@@ -18,7 +18,10 @@ typedef struct LRUCache {
 } LRUCache; 
 
 // LRU Cache Function Prototypes //
-int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
+ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solution_array);
+void update_cache_entry_access_time(int index);
+void evict_lru_entry(KeyType key, ValueType result);
+void add_cache_entry(KeyType key, ValueType result);
 int find_index_of_lru_entry();
 
 // Initialize cache pointer
@@ -74,35 +77,63 @@ void initialize_cache(int_func_ptr* assigned_provider) {
 // value to the next available entry. //
 // ================================== // 
 
-int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length) {
-    
+ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solution_array) {
+
     for (int ix = 0; ix < LRU_cache->size; ix++){
-        if (LRU_cache->entry[ix].key == rod_length){
-            LRU_cache->entry[ix].last_access_time = LRU_cache->time_counter++;
+        if (LRU_cache->entry[ix].key == key){
+            update_cache_entry_access_time(ix);
             return LRU_cache->entry[ix].value; 
         }
     }
 
-    // If not in cache, call the original provider
-    int result = (*original_provider)(lengths_and_prices, number_of_options, rod_length, optimal_cut_for_length);
-    
-    if (LRU_cache->size == LRU_cache->capacity) { // if cache is full 
-        int lru_index = find_index_of_lru_entry();
-        
-        LRU_cache->entry[lru_index].key = rod_length;
-        LRU_cache->entry[lru_index].value = result;
-        LRU_cache->entry[lru_index].last_access_time = LRU_cache->time_counter++;
-        LRU_cache->evictions++; 
+    ValueType result = (*original_provider)(data_array, array_size, key, solution_array);
 
+    if (LRU_cache->size == LRU_cache->capacity) {
+        evict_lru_entry(key, result);
     } else {
-        LRU_cache->entry[LRU_cache->size].key = rod_length;
-        LRU_cache->entry[LRU_cache->size].value = result;
-        LRU_cache->entry[LRU_cache->size].last_access_time = LRU_cache->time_counter++;
-        LRU_cache->size++;
+        add_cache_entry(key, result);
     }
 
     return result;
 }
+
+// === FUNCTIONS TO SUPPORT CACHE LOOKUP === //                         
+// update_cache_entry_access_time            //
+// evict_lru_entry                           //
+// add_cache_entry                           // 
+// ==========================================//
+
+void update_cache_entry_access_time(int index) {
+    LRU_cache->entry[index].last_access_time = LRU_cache->time_counter++;
+}
+
+void evict_lru_entry(KeyType key, ValueType result) {
+    int lru_index = find_index_of_lru_entry();
+
+    if (lru_index < 0 || lru_index >= LRU_cache->capacity) {
+        fprintf(stderr, "Error: Invalid LRU index during eviction.\n");
+        return;
+    }
+
+    LRU_cache->entry[lru_index].key = key;
+    LRU_cache->entry[lru_index].value = result;
+    update_cache_entry_access_time(lru_index);
+    LRU_cache->evictions++;
+}
+
+void add_cache_entry(KeyType key, ValueType result) {
+
+    if (LRU_cache->size >= LRU_cache->capacity) {
+        fprintf(stderr, "Error: Cache is full. Entry not added.\n");
+        return;
+    }
+
+    LRU_cache->entry[LRU_cache->size].key = key;
+    LRU_cache->entry[LRU_cache->size].value = result;
+    update_cache_entry_access_time(LRU_cache->size);
+    LRU_cache->size++;
+}
+
 
 // ====== FIND_INDEX_OF_LRU_ENTRY ======== // 
 // Searches the cache to determine the     //

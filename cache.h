@@ -10,7 +10,7 @@
 typedef int KeyType;
 typedef int ValueType;
 
-typedef int (*int_func_ptr)(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);  
+typedef int (*int_func_ptr)(int**, int, KeyType key, int*);  
 extern int_func_ptr assigned_provider;  
 
 void initialize_cache(int_func_ptr* original_provider_function); 

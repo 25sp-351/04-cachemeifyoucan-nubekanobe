@@ -23,7 +23,10 @@ FIFOCache* FIFO_cache = NULL;
 int_func_ptr original_provider = NULL;
 
 // FIFO Cache Function prototypes // 
-int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length);
+ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solution_array);
+void add_cache_entry(KeyType key, ValueType result); 
+void evict_cache_head_entry(); 
+
 
 // ==== INITIALIZE_CACHE ==== //
 // Initializes an empty cache // 
@@ -62,47 +65,54 @@ void initialize_cache(int_func_ptr* assigned_provider){
 // to the end of the list.            //
 // ================================== // 
 
-int cache_lookup(int** lengths_and_prices, int number_of_options, int rod_length, int* optimal_cut_for_length) {
+ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solution_array) {
     
     FIFOCacheEntry* current = FIFO_cache->head; 
 
     while(current != NULL){
-        if(current->key == rod_length) {
+        if(current->key == key) {
             return current->value; 
         }
         current = current->next; 
     }
 
     // If not in cache, call the original provider
-    int result = (*original_provider)(lengths_and_prices, number_of_options, rod_length, optimal_cut_for_length);
+    ValueType result = (*original_provider)(data_array, array_size, key, solution_array);
     
     // If cache is full, evict entry at head of list
     if (FIFO_cache->size == FIFO_cache->capacity) { 
-        FIFOCacheEntry* evict_entry = FIFO_cache->head; 
-        FIFO_cache->head = FIFO_cache->head->next; 
-        FIFO_cache->evictions++; 
-        free(evict_entry); 
-        FIFO_cache->size--; 
+        evict_cache_head_entry();
     }
 
-    // Create a new entry to store the key and value
-    FIFOCacheEntry* new_entry = (FIFOCacheEntry*)malloc(sizeof(FIFOCacheEntry)); 
-    new_entry->key = rod_length; 
-    new_entry->value = result; 
-    new_entry->next = NULL; 
+    add_cache_entry(key, result); 
 
-
-    // If list is empty, new entry is both head and tail of the list 
-    if(FIFO_cache->head == NULL){
-        FIFO_cache->head = new_entry;  
-        FIFO_cache->tail = new_entry; 
-    } else {    // Tail points to the new entry
-        FIFO_cache->tail->next = new_entry; 
-        FIFO_cache->tail = new_entry; 
-    }
-
-    FIFO_cache->size++; 
     return result;
+}
+
+void evict_cache_head_entry() {
+    FIFOCacheEntry* evict_entry = FIFO_cache->head;
+    FIFO_cache->head = FIFO_cache->head->next;
+    FIFO_cache->evictions++;
+    free(evict_entry); // Free the evicted entry's memory
+    FIFO_cache->size--;
+}
+
+void add_cache_entry(KeyType key, ValueType result) {
+    FIFOCacheEntry* new_entry = (FIFOCacheEntry*)malloc(sizeof(FIFOCacheEntry));
+    new_entry->key = key;
+    new_entry->value = result;
+    new_entry->next = NULL;
+
+    // If the list is empty, the new entry becomes both head and tail
+    if (FIFO_cache->head == NULL) {
+        FIFO_cache->head = new_entry;
+        FIFO_cache->tail = new_entry;
+    } else { // Otherwise, add to the tail of the list
+        FIFO_cache->tail->next = new_entry;
+        FIFO_cache->tail = new_entry;
+    }
+
+    FIFO_cache->size++;
 }
 
 // ====== PRINT_CACHE (FOR DEBUG) ======== // 
