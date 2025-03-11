@@ -102,9 +102,9 @@ int solve_rods_recursive(int** lengths_and_prices, int number_of_options, int ro
 
     int max_profit = 0;
 
-    for (int i = 0; i < number_of_options; i++) {
-        int cut_length = lengths_and_prices[i][CUT_LENGTH_INDEX];
-        int cut_price = lengths_and_prices[i][CUT_PRICE_INDEX];
+    for (int ix = 0; ix < number_of_options; ix++) {
+        int cut_length = lengths_and_prices[ix][CUT_LENGTH_INDEX];
+        int cut_price = lengths_and_prices[ix][CUT_PRICE_INDEX];
 
         if (cut_length <= rod_length) {
             int current_profit = cut_price + (*assigned_provider)(lengths_and_prices, number_of_options, rod_length - cut_length, optimal_cut_for_length);
