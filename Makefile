@@ -21,7 +21,7 @@ all: $(TARGET) $(LRU_LIB) $(FIFO_LIB)
 
 # Link object files to create the executable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) -ldl
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
 
 # Compile object files
 read_print_file.o: read_print_file.c read_print_file.h constants.h
@@ -48,5 +48,5 @@ fifo_cache.o: fifo_cache.c cache.h
 	$(CC) $(CFLAGS) -c -fPIC fifo_cache.c -o fifo_cache.o
 
 clean:
-	rm -f $(OBJS) rods lru_cache.so fifo_cache.so lru_cache.o fifo_cache.o
+	rm -f $(OBJS) $(TARGET) $(LRU_LIB) $(FIFO_LIB) lru_cache.o fifo_cache.o
 
