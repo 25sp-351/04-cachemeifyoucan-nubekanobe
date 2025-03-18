@@ -1,3 +1,4 @@
+#include <stdio.h> 
 #include "make_print_cut_list.h"
 
 /********* GENERATE_OPTIMAL_CUT_LIST***********/

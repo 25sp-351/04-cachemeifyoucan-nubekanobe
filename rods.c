@@ -1,3 +1,6 @@
+#include <stdio.h> 
+#include <string.h> 
+#include <stdlib.h> 
 #include <dlfcn.h>
 #include "read_print_file.h"
 #include "make_print_cut_list.h"

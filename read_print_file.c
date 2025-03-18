@@ -1,4 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "read_print_file.h"
+#include "constants.h"
 
 /********* READ_LENGTHS_PRICES_FILE *********/
 /* This function reads pairs of cut lengths */
