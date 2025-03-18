@@ -26,7 +26,7 @@ void read_lengths_prices_file(FILE* lengths_prices_file, int*** lengths_and_pric
     rewind(lengths_prices_file); 
 
     for (int ix = 0; ix < *number_of_options; ix++){
-        fscanf_s(lengths_prices_file, "%d,%d", &(*lengths_and_prices)[ix][CUT_LENGTH_INDEX], &(*lengths_and_prices)[ix][CUT_PRICE_INDEX]); 
+        fscanf(lengths_prices_file, "%d,%d", &(*lengths_and_prices)[ix][CUT_LENGTH_INDEX], &(*lengths_and_prices)[ix][CUT_PRICE_INDEX]); 
     }
 }
 

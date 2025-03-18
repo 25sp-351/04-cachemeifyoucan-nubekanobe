@@ -1,4 +1,6 @@
 #include "cache.h"
+#include <stdio.h>
+#include <stdlib.h> 
 
 typedef struct FIFOCacheEntry {
     KeyType key;
@@ -22,20 +24,38 @@ FIFOCache* FIFO_cache = NULL;
 // Function pointers to store original providers //
 int_func_ptr original_provider = NULL;
 
-// FIFO Cache Function prototypes // 
+// FIFO Cache Function prototypes //
+void initialize_cache();  
 ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solution_array);
 void add_cache_entry(KeyType key, ValueType result); 
 void evict_cache_head_entry(); 
+void print_cache();
+void free_cache();
+void reset_cache(); 
+
+// ========= SET_PROVIDER_FUNCTION ======= //
+// Sets the assigned provider to the cache //
+// provider functions.                    //
+// ======================================= //
+
+void set_provider(provider_set *provider) {
+  
+    original_provider = provider->assigned_provider; 
+    provider->assigned_provider = cache_lookup; 
+
+    provider->free = free_cache;
+    provider->print_data = print_cache; 
+    provider->reset_data = reset_cache; 
+
+    initialize_cache();
+}
 
 
 // ==== INITIALIZE_CACHE ==== //
 // Initializes an empty cache // 
 // ========================== // 
 
-void initialize_cache(int_func_ptr* assigned_provider){
-
-    original_provider = *assigned_provider;
-    *assigned_provider = cache_lookup; 
+void initialize_cache(){
 
     if (FIFO_cache != NULL) {
         free(FIFO_cache);  
@@ -89,6 +109,11 @@ ValueType cache_lookup(int** data_array, int array_size, KeyType key, int* solut
     return result;
 }
 
+// ==== EVICT_CACHE_HEAD_ENTRY == // 
+// Removes the element which was  //
+// inserted first (FIFO)          //
+// ============================== //
+
 void evict_cache_head_entry() {
     FIFOCacheEntry* evict_entry = FIFO_cache->head;
     FIFO_cache->head = FIFO_cache->head->next;
@@ -96,6 +121,11 @@ void evict_cache_head_entry() {
     free(evict_entry); // Free the evicted entry's memory
     FIFO_cache->size--;
 }
+
+// ======= ADD_CACHE_ENTRY ==== // 
+// Add entry to the end of the  //
+// cache.                       // 
+// =============================// 
 
 void add_cache_entry(KeyType key, ValueType result) {
     FIFOCacheEntry* new_entry = (FIFOCacheEntry*)malloc(sizeof(FIFOCacheEntry));
@@ -130,8 +160,6 @@ void print_cache() {
     }
 
     printf("Evictions: %d\n", FIFO_cache->evictions); 
-
-    printf("\n");
 }
 
 // ============== FREE_CACHE ============== // 
@@ -150,4 +178,24 @@ void free_cache() {
         free(FIFO_cache);
         FIFO_cache = NULL;
     }
+}
+
+// ============== RESET_CACHE ============= // 
+// Reset cache for each new computation     // 
+// ======================================== // 
+
+void reset_cache() {
+    if (!FIFO_cache) return;
+
+    FIFOCacheEntry* current = FIFO_cache->head;
+    while (current != NULL) {
+        FIFOCacheEntry* temp = current;
+        current = current->next;
+        free(temp);  // Free each cache entry
+    }
+
+    FIFO_cache->head = NULL;
+    FIFO_cache->tail = NULL;
+    FIFO_cache->size = 0;
+    FIFO_cache->evictions = 0;
 }

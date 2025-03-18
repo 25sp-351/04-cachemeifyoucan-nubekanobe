@@ -7,34 +7,23 @@ CC = clang
 CFLAGS = -Wall -g
 
 # Executable name
-TARGET_L = rodslru
-TARGET_F = rodsfifo
+TARGET = rods
 
 # Common Object files
-COMMON_OBJS = rods.o read_print_file.o make_print_cut_list.o
+OBJS = rods.o read_print_file.o make_print_cut_list.o
 
-# Cache specific object files 
-LRU_OBJS = $(COMMON_OBJS) lru_cache.o 
-FIFO_OBJS = $(COMMON_OBJS) fifo_cache.o
+# Shared Library for dynamic loading 
+LRU_LIB = lru_cache.so
+FIFO_LIB = fifo_cache.so
 
 # Default target
-all: $(TARGET_L) $(TARGET_F) $(TARGET)
+all: $(TARGET) $(LRU_LIB) $(FIFO_LIB)
 
-# Compile rodsl (LRU)
-$(TARGET_L): $(LRU_OBJS)
-	$(CC) $(CFLAGS) $(LRU_OBJS) -o $(TARGET_L)
-
-# Compile rodsf (FIFO)
-$(TARGET_F): $(FIFO_OBJS)
-	$(CC) $(CFLAGS) $(FIFO_OBJS) -o $(TARGET_F)
+# Link object files to create the executable
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) -ldl
 
 # Compile object files
-fifo_cache.o: fifo_cache.c cache.h
-	$(CC) $(CFLAGS) -c fifo_cache.c -o fifo_cache.o
-
-lru_cache.o: lru_cache.c cache.h
-	$(CC) $(CFLAGS) -c lru_cache.c -o lru_cache.o
-
 read_print_file.o: read_print_file.c read_print_file.h constants.h
 	$(CC) $(CFLAGS) -c read_print_file.c -o read_print_file.o
 
@@ -44,7 +33,20 @@ make_print_cut_list.o: make_print_cut_list.c constants.h
 rods.o: rods.c cache.h read_print_file.h make_print_cut_list.h
 	$(CC) $(CFLAGS) -c rods.c -o rods.o
 
-# Clean up build files
+# Compile LRU cache as a shared library
+$(LRU_LIB): lru_cache.o
+	$(CC) -shared -o $(LRU_LIB) lru_cache.o
+
+lru_cache.o: lru_cache.c cache.h
+	$(CC) $(CFLAGS) -c -fPIC lru_cache.c -o lru_cache.o
+
+# Compile FIFO cache as a shared library
+$(FIFO_LIB): fifo_cache.o
+	$(CC) -shared -o $(FIFO_LIB) fifo_cache.o
+
+fifo_cache.o: fifo_cache.c cache.h
+	$(CC) $(CFLAGS) -c -fPIC fifo_cache.c -o fifo_cache.o
+
 clean:
-	rm -f $(LRU_OBJS) $(FIFO_OBJS) $(TARGET_L) $(TARGET_F)
+	rm -f $(OBJS) rods lru_cache.so fifo_cache.so lru_cache.o fifo_cache.o
 
