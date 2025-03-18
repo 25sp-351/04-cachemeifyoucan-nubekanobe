@@ -21,7 +21,7 @@ all: $(TARGET) $(LRU_LIB) $(FIFO_LIB)
 
 # Link object files to create the executable
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) -ldl
 
 # Compile object files
 read_print_file.o: read_print_file.c read_print_file.h constants.h
