@@ -13,6 +13,7 @@ typedef void (*void_function)(void);
 
 typedef struct {
     int_func_ptr assigned_provider;
+    void_function initialize; 
     void_function reset_data; 
     void_function print_data;
     void_function free; 
@@ -22,4 +23,4 @@ typedef struct {
 typedef void (*set_provider_fnc)(provider_set *provider);
 set_provider_fnc load_cache_module(const char *module_path);
 
-#endif
+#endif 

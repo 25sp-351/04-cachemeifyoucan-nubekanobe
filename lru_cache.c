@@ -46,12 +46,10 @@ void set_provider(provider_set *provider) {
   
     original_provider = provider->assigned_provider; 
     provider->assigned_provider = cache_lookup; 
- 
+    provider->initialize = initialize_cache; 
     provider->free = free_cache;
     provider->print_data = print_cache; 
     provider->reset_data = reset_cache; 
-
-    initialize_cache(); 
 }
 
 // ==== INITIALIZE_CACHE ==== //

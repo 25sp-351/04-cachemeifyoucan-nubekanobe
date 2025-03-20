@@ -18,12 +18,14 @@ int_func_ptr assigned_provider = NULL;
 // Define provider functions
 provider_set providers = {
     .assigned_provider = solve_rods_recursive, 
+    .initialize = NULL, 
     .reset_data = NULL,
     .print_data = NULL,
     .free = NULL
 };
 
-// ===== MAIN ======= //
+// ============= MAIN ============== //
+// ================================= // 
 int main(int argc, char *argv[]) {
 
     if (argc < 2){
@@ -45,6 +47,10 @@ int main(int argc, char *argv[]) {
     if (lengths_prices_file == NULL) {
         perror("Error opening file");
         return 1;
+    }
+
+    if(providers.initialize){
+        providers.initialize(); 
     }
 
     int** lengths_and_prices = NULL;  
@@ -80,9 +86,9 @@ int main(int argc, char *argv[]) {
             providers.print_data();
           }
         */
-
+        
         if(providers.reset_data){
-            providers.reset_data();
+           providers.reset_data();
         }
         
     }
